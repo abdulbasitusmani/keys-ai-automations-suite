@@ -1,12 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
-
-// Replace with your Supabase URL and anon key
-// Using placeholder valid URLs that won't cause constructor errors
-const supabaseUrl = 'https://placeholder-project.supabase.co';
-const supabaseAnonKey = 'placeholder-anon-key';
 
 type User = {
   id: string;
@@ -14,7 +9,7 @@ type User = {
 };
 
 type AuthContextProps = {
-  supabase: SupabaseClient;
+  supabase: typeof supabase;
   user: User | null;
   loading: boolean;
   signUp: (email: string, password: string) => Promise<void>;
@@ -28,34 +23,9 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  
-  // Create the Supabase client with valid placeholders to prevent URL constructor errors
-  const [supabase] = useState(() => 
-    createClient(supabaseUrl, supabaseAnonKey)
-  );
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error('Error fetching session:', error);
-        setLoading(false);
-        return;
-      }
-      
-      if (session?.user) {
-        setUser({
-          id: session.user.id,
-          email: session.user.email
-        });
-      }
-      
-      setLoading(false);
-    };
-
-    getUser();
-
+    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         if (session?.user) {
@@ -70,14 +40,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email
+        });
+      }
+      setLoading(false);
+    });
+
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, []);
 
   const signUp = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { error } = await supabase.auth.signUp({ 
+        email, 
+        password,
+      });
       
       if (error) throw error;
       
@@ -97,7 +81,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ 
+        email, 
+        password 
+      });
       
       if (error) throw error;
       
