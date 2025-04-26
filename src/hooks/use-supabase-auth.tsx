@@ -58,18 +58,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signUp({ 
+      const { error, data } = await supabase.auth.signUp({ 
         email, 
         password,
       });
       
       if (error) throw error;
       
+      console.log("Sign up successful:", data);
+      
       toast({
         title: "Success!",
         description: "Please check your email for verification link.",
       });
     } catch (error: any) {
+      console.error("Sign up error:", error);
       toast({
         title: "Error signing up",
         description: error.message || "An unexpected error occurred",

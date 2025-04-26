@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import Logo from '@/components/Logo';
+import { toast } from '@/components/ui/use-toast';
 
 const signupSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -59,9 +60,21 @@ const SignUp = () => {
     try {
       setIsLoading(true);
       await signUp(data.email, data.password);
+      
+      toast({
+        title: "Success!",
+        description: "Your account has been created. Please check your email for verification.",
+      });
+      
       navigate('/login?verified=pending');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Signup error:', error);
+      
+      toast({
+        title: "Error signing up",
+        description: error.message || "An unexpected error occurred",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }

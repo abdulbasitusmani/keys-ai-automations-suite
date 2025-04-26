@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -145,7 +144,7 @@ const Setup = () => {
       };
       
       const { error } = await supabase
-        .from('users')
+        .from('profiles')
         .update({ 
           package_selected: packageType,
           credentials: credentials,
@@ -182,7 +181,7 @@ const Setup = () => {
         <div className="max-w-3xl mx-auto">
           <div className="mb-10 flex items-center space-x-3">
             <div className={`p-3 rounded-full bg-${packageType === 'instagram' ? 'purple' : packageType === 'whatsapp' ? 'green' : 'blue'}-100`}>
-              <packageInfo.icon className={packageInfo.color} size={28} />
+              <packageInfo.icon className={packageInfo.color} />
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Set Up {packageInfo.name}</h1>
