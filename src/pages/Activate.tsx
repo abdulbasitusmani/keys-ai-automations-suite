@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -12,7 +11,7 @@ type PackageType = 'instagram' | 'whatsapp' | 'bill';
 // Maps to help with package-specific data
 const packageDetails: Record<PackageType, {
   name: string;
-  icon: React.FC<{ className?: string }>;
+  icon: React.FC<React.SVGProps<SVGSVGElement>>;
   color: string;
   webhookUrl: string;
 }> = {
@@ -91,6 +90,7 @@ const Activate = () => {
   }, [packageId, user, navigate, supabase, toast, packageType]);
   
   const packageInfo = packageDetails[packageType];
+  const IconComponent = packageInfo.icon;
   
   const handleActivateAutomation = async () => {
     try {
@@ -144,7 +144,7 @@ const Activate = () => {
         <div className="max-w-3xl mx-auto">
           <div className="mb-10 flex items-center space-x-3">
             <div className={`p-3 rounded-full bg-${packageType === 'instagram' ? 'purple' : packageType === 'whatsapp' ? 'green' : 'blue'}-100`}>
-              <packageInfo.icon className={packageInfo.color} size={28} />
+              <IconComponent className={packageInfo.color} />
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Activate {packageInfo.name}</h1>

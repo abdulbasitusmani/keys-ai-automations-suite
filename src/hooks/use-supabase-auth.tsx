@@ -4,9 +4,9 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { toast } from '@/components/ui/use-toast';
 
 // Replace with your Supabase URL and anon key
-// This should eventually be moved to environment variables
-const supabaseUrl = 'YOUR_SUPABASE_URL';
-const supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
+// Using placeholder valid URLs that won't cause constructor errors
+const supabaseUrl = 'https://placeholder-project.supabase.co';
+const supabaseAnonKey = 'placeholder-anon-key';
 
 type User = {
   id: string;
@@ -28,6 +28,8 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  // Create the Supabase client with valid placeholders to prevent URL constructor errors
   const [supabase] = useState(() => 
     createClient(supabaseUrl, supabaseAnonKey)
   );
