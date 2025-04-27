@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -61,7 +62,7 @@ const Activate = () => {
     const fetchUserData = async () => {
       try {
         const { data, error } = await supabase
-          .from('users')
+          .from('profiles')
           .select('credentials, package_selected')
           .eq('id', user.id)
           .single();
@@ -73,7 +74,7 @@ const Activate = () => {
         }
         
         // If package doesn't match, redirect to setup
-        if (data.package_selected !== packageType) {
+        if (data?.package_selected !== packageType) {
           navigate(`/setup/${packageType}`);
         }
       } catch (error) {
@@ -107,7 +108,7 @@ const Activate = () => {
       
       // Update user's n8n_workflow_id
       const { error } = await supabase
-        .from('users')
+        .from('profiles')
         .update({ 
           n8n_workflow_id: `mock-${packageType}-workflow-id`,
           automation_active: true

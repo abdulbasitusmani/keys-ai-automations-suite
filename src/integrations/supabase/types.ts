@@ -9,7 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          automation_active: boolean | null
+          created_at: string | null
+          credentials: Json | null
+          email: string | null
+          id: string
+          n8n_workflow_id: string | null
+          package_selected: string | null
+        }
+        Insert: {
+          automation_active?: boolean | null
+          created_at?: string | null
+          credentials?: Json | null
+          email?: string | null
+          id: string
+          n8n_workflow_id?: string | null
+          package_selected?: string | null
+        }
+        Update: {
+          automation_active?: boolean | null
+          created_at?: string | null
+          credentials?: Json | null
+          email?: string | null
+          id?: string
+          n8n_workflow_id?: string | null
+          package_selected?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

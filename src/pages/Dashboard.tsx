@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -84,20 +83,17 @@ const Dashboard = () => {
       try {
         setLoading(true);
         
-        // Fetch user data from Supabase
         const { data, error } = await supabase
-          .from('users')
+          .from('profiles')
           .select('package_selected, credentials, automation_active, n8n_workflow_id')
           .eq('id', user.id)
           .single();
         
         if (error) throw error;
         
-        setUserData(data);
+        setUserData(data || {});
         
-        // In a real app, we would fetch stats from n8n's API based on n8n_workflow_id
-        // For this demo, we'll just use mock data
-        if (data.package_selected && data.automation_active) {
+        if (data?.package_selected && data?.automation_active) {
           fetchMockStats(data.package_selected);
         }
       } catch (error) {
@@ -116,12 +112,9 @@ const Dashboard = () => {
   }, [user, navigate, supabase, toast]);
   
   const fetchMockStats = (packageType: string) => {
-    // In a real app, this would be an API call to n8n
     console.log('Fetching stats for:', packageType);
     
-    // Simulate API delay
     setTimeout(() => {
-      // Generate random stats based on package
       switch (packageType) {
         case 'instagram':
           setStats(prev => ({
@@ -177,15 +170,12 @@ const Dashboard = () => {
     try {
       setIsDeactivating(true);
       
-      // In a real implementation, this would call your n8n API to stop the workflow
       console.log('Deactivating automation for:', userData?.package_selected);
       
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Update user's active status
       const { error } = await supabase
-        .from('users')
+        .from('profiles')
         .update({ 
           automation_active: false
         })
@@ -193,7 +183,6 @@ const Dashboard = () => {
       
       if (error) throw error;
       
-      // Update local state
       setUserData({
         ...userData,
         automation_active: false
@@ -257,7 +246,6 @@ const Dashboard = () => {
       <main className="flex-grow py-12 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid gap-6">
-            {/* Dashboard Header */}
             <div className="flex flex-col md:flex-row gap-6 md:items-center md:justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
@@ -287,7 +275,6 @@ const Dashboard = () => {
               </div>
             </div>
             
-            {/* Active Package Card */}
             <Card className="shadow-md">
               <CardHeader className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
                 <div>
@@ -413,7 +400,6 @@ const Dashboard = () => {
               )}
             </Card>
             
-            {/* Dashboard Tabs */}
             {userData?.package_selected && userData.automation_active && (
               <Tabs defaultValue="stats" className="mt-6">
                 <TabsList className="grid w-full md:w-fit grid-cols-2 md:grid-cols-3">
