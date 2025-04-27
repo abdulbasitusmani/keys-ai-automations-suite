@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,12 +12,8 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
-import Packages from "./pages/Packages";
-import Setup from "./pages/Setup";
-import Activate from "./pages/Activate";
-import NotFound from "./pages/NotFound";
 import Agents from "./pages/Agents";
-import ConnectInstagram from "./pages/ConnectInstagram";
+import NotFound from "./pages/NotFound";
 
 // Components
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -51,14 +48,6 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Agents />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/connect/:agentId" 
-              element={
-                <ProtectedRoute>
-                  <ConnectInstagram />
                 </ProtectedRoute>
               } 
             />

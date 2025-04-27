@@ -210,7 +210,7 @@ const Dashboard = () => {
   };
   
   const handleSetupPackage = () => {
-    navigate('/packages');
+    navigate('/agents');
   };
   
   if (loading) {
@@ -303,7 +303,7 @@ const Dashboard = () => {
                 {!userData?.package_selected ? (
                   <div className="text-center py-12">
                     <p className="text-lg text-gray-500 mb-6">
-                      You don't have any active automation packages yet
+                      Select your first automation package to get started
                     </p>
                     <Button onClick={handleSetupPackage}>
                       Select a Package
@@ -378,7 +378,13 @@ const Dashboard = () => {
               </CardContent>
               
               {userData?.package_selected && (
-                <CardFooter className="flex justify-end">
+                <CardFooter className="flex justify-between">
+                  <Button
+                    onClick={handleSetupPackage}
+                    variant="outline"
+                  >
+                    Select Another Package
+                  </Button>
                   {userData.automation_active ? (
                     <Button 
                       variant="destructive"
