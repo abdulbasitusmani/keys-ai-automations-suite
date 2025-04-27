@@ -78,8 +78,6 @@ const ConnectInstagram = () => {
         .insert({
           user_id: user.id,
           username: data.username,
-          // In a real app, you should NEVER store passwords in plain text.
-          // This is just for demo purposes. You would use a secure method.
           password: data.password,
           connected_at: new Date().toISOString(),
         });

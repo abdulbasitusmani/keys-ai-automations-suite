@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -47,32 +46,6 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
-            <Route 
-              path="/packages" 
-              element={
-                <ProtectedRoute>
-                  <Packages />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/setup/:packageId" 
-              element={
-                <ProtectedRoute>
-                  <Setup />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/activate/:packageId" 
-              element={
-                <ProtectedRoute>
-                  <Activate />
-                </ProtectedRoute>
-              } 
-            />
-            
-            {/* New routes */}
             <Route 
               path="/agents" 
               element={

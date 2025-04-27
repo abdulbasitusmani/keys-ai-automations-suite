@@ -9,6 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      instagram_accounts: {
+        Row: {
+          connected_at: string | null
+          created_at: string | null
+          id: string
+          password: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          connected_at?: string | null
+          created_at?: string | null
+          id?: string
+          password: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          connected_at?: string | null
+          created_at?: string | null
+          id?: string
+          password?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           automation_active: boolean | null
