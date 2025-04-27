@@ -43,7 +43,7 @@ const SignUp = () => {
   
   React.useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      navigate('/agents');
     }
   }, [user, navigate]);
 
@@ -63,10 +63,10 @@ const SignUp = () => {
       
       toast({
         title: "Success!",
-        description: "Your account has been created. Please check your email for verification.",
+        description: "Your account has been created.",
       });
       
-      navigate('/login?verified=pending');
+      navigate('/agents');
     } catch (error: any) {
       console.error('Signup error:', error);
       

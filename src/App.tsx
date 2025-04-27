@@ -16,6 +16,8 @@ import Packages from "./pages/Packages";
 import Setup from "./pages/Setup";
 import Activate from "./pages/Activate";
 import NotFound from "./pages/NotFound";
+import Agents from "./pages/Agents";
+import ConnectInstagram from "./pages/ConnectInstagram";
 
 // Components
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -66,6 +68,24 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Activate />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* New routes */}
+            <Route 
+              path="/agents" 
+              element={
+                <ProtectedRoute>
+                  <Agents />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/connect/:agentId" 
+              element={
+                <ProtectedRoute>
+                  <ConnectInstagram />
                 </ProtectedRoute>
               } 
             />
