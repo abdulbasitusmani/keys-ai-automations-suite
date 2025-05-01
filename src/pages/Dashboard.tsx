@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -212,6 +213,12 @@ const Dashboard = () => {
   const handleSetupPackage = () => {
     navigate('/agents');
   };
+
+  const handleViewAutomationDetails = () => {
+    if (userData?.package_selected) {
+      navigate(`/automation/${userData.package_selected}`);
+    }
+  };
   
   if (loading) {
     return (
@@ -275,7 +282,10 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <Card className="shadow-md">
+            <Card 
+              className={`shadow-md cursor-pointer ${userData?.package_selected ? 'hover:shadow-lg transition-shadow' : ''}`} 
+              onClick={userData?.package_selected ? handleViewAutomationDetails : undefined}
+            >
               <CardHeader className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
                 <div>
                   <CardTitle className="text-2xl">Active Automation</CardTitle>

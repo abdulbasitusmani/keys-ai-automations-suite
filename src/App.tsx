@@ -14,6 +14,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import Agents from "./pages/Agents";
 import NotFound from "./pages/NotFound";
+import AutomationDetails from "./pages/AutomationDetails";
 
 // Components
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -48,6 +49,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Agents />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/automation/:packageId" 
+              element={
+                <ProtectedRoute>
+                  <AutomationDetails />
                 </ProtectedRoute>
               } 
             />
