@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   MessageSquare, Clock, FileText, CheckCircle, AlertCircle, 
-  BarChart, Settings, RefreshCcw, Power, ExternalLink 
+  BarChart, Settings, RefreshCcw, Power, ExternalLink, UserIcon, Plus
 } from 'lucide-react';
 
 const packageIcons = {
@@ -48,12 +48,19 @@ interface Stats {
   };
 }
 
+interface ConnectedAccount {
+  id: string;
+  username: string;
+  connected_at: string;
+}
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, supabase } = useSupabaseAuth();
   const [userData, setUserData] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
+  const [connectedAccounts, setConnectedAccounts] = React.useState<ConnectedAccount[]>([]);
   const [stats, setStats] = React.useState<Stats>({
     instagram: {
       dmsSent: 0,
@@ -94,8 +101,21 @@ const Dashboard = () => {
         
         setUserData(data || {});
         
-        if (data?.package_selected && data?.automation_active) {
-          fetchMockStats(data.package_selected);
+        // Fetch connected accounts if a package is selected
+        if (data?.package_selected) {
+          if (data.package_selected === 'instagram') {
+            const { data: accountsData, error: accountsError } = await supabase
+              .from('instagram_accounts')
+              .select('id, username, connected_at')
+              .eq('user_id', user.id);
+            
+            if (accountsError) throw accountsError;
+            setConnectedAccounts(accountsData || []);
+          }
+          
+          if (data?.automation_active) {
+            fetchMockStats(data.package_selected);
+          }
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -254,6 +274,12 @@ const Dashboard = () => {
       navigate(`/automation/${userData.package_selected}`);
     }
   };
+
+  const handleAddAccount = () => {
+    if (userData?.package_selected === 'instagram') {
+      navigate('/connect-instagram');
+    }
+  };
   
   if (loading) {
     return (
@@ -362,7 +388,57 @@ const Dashboard = () => {
                     <div className="flex-grow">
                       <h3 className="text-xl font-semibold mb-2">{packageName}</h3>
                       
-                      <div className="grid md:grid-cols-2 gap-4 mt-4">
+                      {/* Connected Accounts Section */}
+                      {userData.package_selected === 'instagram' && (
+                        <div className="mt-4">
+                          <h4 className="font-medium text-gray-700 mb-2">Connected Accounts</h4>
+                          
+                          {connectedAccounts.length > 0 ? (
+                            <div className="space-y-4">
+                              {connectedAccounts.map(account => (
+                                <div key={account.id} className="bg-gray-50 p-4 rounded-lg flex items-start justify-between">
+                                  <div>
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <UserIcon size={16} className="text-gray-500" />
+                                      <span className="font-medium">{account.username}</span>
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                      ID: {account.id.substring(0, 8)}...
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                      Connected on: {new Date(account.connected_at).toLocaleDateString()}
+                                    </div>
+                                  </div>
+                                  
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => navigate(`/automation/${userData.package_selected}?account=${account.id}`)}
+                                    className="flex items-center gap-1"
+                                  >
+                                    <ExternalLink size={14} />
+                                    Details
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-gray-500">No accounts connected yet.</p>
+                          )}
+                          
+                          <Button
+                            onClick={handleAddAccount}
+                            variant="outline"
+                            className="mt-3 flex items-center gap-2"
+                          >
+                            <Plus size={16} />
+                            Connect Account
+                          </Button>
+                        </div>
+                      )}
+                      
+                      {/* Package Statistics Section */}
+                      <div className="grid md:grid-cols-2 gap-4 mt-6">
                         {userData.package_selected === 'instagram' && (
                           <>
                             <div className="bg-gray-50 p-4 rounded-lg">
@@ -429,31 +505,39 @@ const Dashboard = () => {
               </CardContent>
               
               {userData?.package_selected && (
-                <CardFooter className="flex justify-between">
-                  <Button
-                    onClick={handleSetupPackage}
-                    variant="outline"
-                  >
-                    Select Another Package
-                  </Button>
-                  {userData.automation_active ? (
-                    <Button 
-                      variant="destructive"
-                      onClick={handleDeactivateAutomation}
-                      disabled={isDeactivating}
-                    >
-                      <Power size={16} className="mr-2" />
-                      {isDeactivating ? 'Deactivating...' : 'Deactivate Automation'}
-                    </Button>
-                  ) : (
+                <CardFooter className="flex flex-col md:flex-row items-center gap-4">
+                  <div className="w-full md:w-auto flex justify-center">
                     <Button
-                      onClick={handleActivateAutomation}
-                      disabled={isDeactivating}
+                      onClick={handleSetupPackage}
+                      variant="outline"
+                      className="w-full md:w-auto"
                     >
-                      <Power size={16} className="mr-2" />
-                      {isDeactivating ? 'Activating...' : 'Activate Automation'}
+                      Select Another Package
                     </Button>
-                  )}
+                  </div>
+                  
+                  <div className="w-full md:w-auto flex justify-center">
+                    {userData.automation_active ? (
+                      <Button 
+                        variant="destructive"
+                        onClick={handleDeactivateAutomation}
+                        disabled={isDeactivating}
+                        className="w-full md:w-auto"
+                      >
+                        <Power size={16} className="mr-2" />
+                        {isDeactivating ? 'Deactivating...' : 'Deactivate Automation'}
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={handleActivateAutomation}
+                        disabled={isDeactivating}
+                        className="w-full md:w-auto"
+                      >
+                        <Power size={16} className="mr-2" />
+                        {isDeactivating ? 'Activating...' : 'Activate Automation'}
+                      </Button>
+                    )}
+                  </div>
                 </CardFooter>
               )}
             </Card>
