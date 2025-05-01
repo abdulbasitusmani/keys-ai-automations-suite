@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   MessageSquare, Clock, FileText, CheckCircle, AlertCircle, 
-  BarChart, Settings, RefreshCcw, Power 
+  BarChart, Settings, RefreshCcw, Power, ExternalLink 
 } from 'lucide-react';
 
 const packageIcons = {
@@ -206,8 +206,43 @@ const Dashboard = () => {
     }
   };
   
-  const handleActivateAutomation = () => {
-    navigate(`/activate/${userData?.package_selected}`);
+  const handleActivateAutomation = async () => {
+    try {
+      setIsDeactivating(true); // Reuse the same state for the loading indicator
+      
+      console.log('Activating automation for:', userData?.package_selected);
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          automation_active: true
+        })
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      
+      setUserData({
+        ...userData,
+        automation_active: true
+      });
+      
+      toast({
+        title: 'Success',
+        description: 'Your automation has been activated'
+      });
+      
+    } catch (error: any) {
+      console.error('Activation error:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to activate automation',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeactivating(false);
+    }
   };
   
   const handleSetupPackage = () => {
@@ -282,10 +317,7 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <Card 
-              className={`shadow-md cursor-pointer ${userData?.package_selected ? 'hover:shadow-lg transition-shadow' : ''}`} 
-              onClick={userData?.package_selected ? handleViewAutomationDetails : undefined}
-            >
+            <Card className="shadow-md">
               <CardHeader className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
                 <div>
                   <CardTitle className="text-2xl">Active Automation</CardTitle>
@@ -382,6 +414,15 @@ const Dashboard = () => {
                           </>
                         )}
                       </div>
+                      
+                      <Button
+                        onClick={handleViewAutomationDetails}
+                        variant="outline"
+                        className="mt-6 flex items-center gap-2"
+                      >
+                        <ExternalLink size={16} />
+                        View Details
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -407,9 +448,10 @@ const Dashboard = () => {
                   ) : (
                     <Button
                       onClick={handleActivateAutomation}
+                      disabled={isDeactivating}
                     >
                       <Power size={16} className="mr-2" />
-                      Activate Automation
+                      {isDeactivating ? 'Activating...' : 'Activate Automation'}
                     </Button>
                   )}
                 </CardFooter>
