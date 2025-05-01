@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import Logo from './Logo';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ const NavBar = () => {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, signOut } = useSupabaseAuth();
   
   const handleLogout = async () => {
@@ -26,10 +27,16 @@ const NavBar = () => {
     setMenuOpen(false);
   };
 
+  const isActive = (path: string) => {
+    return location.pathname === path ? "text-primary font-medium" : "text-gray-800 hover:text-primary";
+  };
+
   return (
-    <header className="w-full bg-white shadow-sm py-4 px-6">
+    <header className="w-full bg-white shadow-sm py-4 px-6 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Logo />
+        <Link to="/" className="flex items-center">
+          <Logo />
+        </Link>
         
         {isMobile ? (
           <>
@@ -63,14 +70,21 @@ const NavBar = () => {
                     <>
                       <Link 
                         to="/dashboard" 
-                        className="py-2 text-center text-gray-800 hover:text-primary"
+                        className={`py-2 text-center ${isActive('/dashboard')}`}
                         onClick={closeMenu}
                       >
                         Dashboard
                       </Link>
                       <Link 
+                        to="/agents" 
+                        className={`py-2 text-center ${isActive('/agents')}`}
+                        onClick={closeMenu}
+                      >
+                        Agents
+                      </Link>
+                      <Link 
                         to="/packages" 
-                        className="py-2 text-center text-gray-800 hover:text-primary"
+                        className={`py-2 text-center ${isActive('/packages')}`}
                         onClick={closeMenu}
                       >
                         Packages
@@ -92,13 +106,14 @@ const NavBar = () => {
           <nav className="flex items-center space-x-6">
             {!user ? (
               <>
-                <Link to="/login" className="text-gray-800 hover:text-primary">Log In</Link>
+                <Link to="/login" className={isActive('/login')}>Log In</Link>
                 <Button onClick={() => navigate('/signup')}>Sign Up</Button>
               </>
             ) : (
               <>
-                <Link to="/dashboard" className="text-gray-800 hover:text-primary">Dashboard</Link>
-                <Link to="/packages" className="text-gray-800 hover:text-primary">Packages</Link>
+                <Link to="/dashboard" className={isActive('/dashboard')}>Dashboard</Link>
+                <Link to="/agents" className={isActive('/agents')}>Agents</Link>
+                <Link to="/packages" className={isActive('/packages')}>Packages</Link>
                 <Button onClick={handleLogout} variant="outline">Log Out</Button>
               </>
             )}

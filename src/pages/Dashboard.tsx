@@ -280,6 +280,10 @@ const Dashboard = () => {
       navigate('/connect-instagram');
     }
   };
+
+  const handleSelectAnotherPackage = () => {
+    navigate('/packages');
+  };
   
   if (loading) {
     return (
@@ -391,7 +395,18 @@ const Dashboard = () => {
                       {/* Connected Accounts Section */}
                       {userData.package_selected === 'instagram' && (
                         <div className="mt-4">
-                          <h4 className="font-medium text-gray-700 mb-2">Connected Accounts</h4>
+                          <div className="flex justify-between items-center mb-2">
+                            <h4 className="font-medium text-gray-700">Connected Accounts</h4>
+                            <Button
+                              onClick={handleAddAccount}
+                              variant="outline"
+                              size="sm"
+                              className="flex items-center gap-2"
+                            >
+                              <Plus size={16} />
+                              Connect Account
+                            </Button>
+                          </div>
                           
                           {connectedAccounts.length > 0 ? (
                             <div className="space-y-4">
@@ -423,17 +438,8 @@ const Dashboard = () => {
                               ))}
                             </div>
                           ) : (
-                            <p className="text-gray-500">No accounts connected yet.</p>
+                            <p className="text-gray-500 bg-gray-50 p-4 rounded-lg">No accounts connected yet. Click the "Connect Account" button to add your Instagram account.</p>
                           )}
-                          
-                          <Button
-                            onClick={handleAddAccount}
-                            variant="outline"
-                            className="mt-3 flex items-center gap-2"
-                          >
-                            <Plus size={16} />
-                            Connect Account
-                          </Button>
                         </div>
                       )}
                       
@@ -505,24 +511,22 @@ const Dashboard = () => {
               </CardContent>
               
               {userData?.package_selected && (
-                <CardFooter className="flex flex-col md:flex-row items-center gap-4">
-                  <div className="w-full md:w-auto flex justify-center">
-                    <Button
-                      onClick={handleSetupPackage}
-                      variant="outline"
-                      className="w-full md:w-auto"
-                    >
-                      Select Another Package
-                    </Button>
-                  </div>
+                <CardFooter className="flex flex-col items-center gap-4">
+                  <Button
+                    onClick={handleSelectAnotherPackage}
+                    variant="outline"
+                    className="w-64"
+                  >
+                    Select Another Package
+                  </Button>
                   
-                  <div className="w-full md:w-auto flex justify-center">
+                  <div className="w-full flex justify-center">
                     {userData.automation_active ? (
                       <Button 
                         variant="destructive"
                         onClick={handleDeactivateAutomation}
                         disabled={isDeactivating}
-                        className="w-full md:w-auto"
+                        className="w-64"
                       >
                         <Power size={16} className="mr-2" />
                         {isDeactivating ? 'Deactivating...' : 'Deactivate Automation'}
@@ -531,7 +535,7 @@ const Dashboard = () => {
                       <Button
                         onClick={handleActivateAutomation}
                         disabled={isDeactivating}
-                        className="w-full md:w-auto"
+                        className="w-64"
                       >
                         <Power size={16} className="mr-2" />
                         {isDeactivating ? 'Activating...' : 'Activate Automation'}

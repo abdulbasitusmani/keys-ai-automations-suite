@@ -15,6 +15,8 @@ import Dashboard from "./pages/Dashboard";
 import Agents from "./pages/Agents";
 import NotFound from "./pages/NotFound";
 import AutomationDetails from "./pages/AutomationDetails";
+import Packages from "./pages/Packages";
+import ConnectInstagram from "./pages/ConnectInstagram";
 
 // Components
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -57,6 +59,30 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AutomationDetails />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/packages" 
+              element={
+                <ProtectedRoute>
+                  <Packages />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/connect-instagram" 
+              element={
+                <ProtectedRoute>
+                  <ConnectInstagram />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/setup/:packageId" 
+              element={
+                <ProtectedRoute>
+                  <ConnectInstagram />
                 </ProtectedRoute>
               } 
             />
