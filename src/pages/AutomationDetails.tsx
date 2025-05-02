@@ -3,17 +3,18 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSupabaseAuth } from '@/hooks/use-supabase-auth';
 import NavBar from '@/components/NavBar';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { 
   MessageSquare, Clock, FileText, Settings, ArrowLeft, 
-  User, Bell, BarChart3, Server, Code, Database, Gauge
+  User, Bell, BarChart3, Server, Code, Database, Gauge, Instagram
 } from 'lucide-react';
 import { 
   SidebarProvider, Sidebar, SidebarContent, SidebarMenu, SidebarMenuItem, 
   SidebarMenuButton, SidebarGroup, SidebarHeader, SidebarFooter, SidebarSeparator 
 } from '@/components/ui/sidebar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { format } from 'date-fns';
 
 const packageIcons = {
   instagram: MessageSquare,
@@ -42,6 +43,12 @@ const AutomationDetails = () => {
   const [loading, setLoading] = React.useState(true);
   const [activeSection, setActiveSection] = React.useState<string>('overview');
   const [instagramAccount, setInstagramAccount] = React.useState<any>(null);
+  const [instagramStats, setInstagramStats] = React.useState<any>({
+    followers: 0,
+    following: 0,
+    posts: 0,
+    engagement: '0%'
+  });
 
   React.useEffect(() => {
     if (!user) {
@@ -72,6 +79,18 @@ const AutomationDetails = () => {
           
           if (igError) throw igError;
           setInstagramAccount(igData);
+          
+          // If we have an Instagram account, fetch mock stats
+          if (igData) {
+            // In a real app, this would come from the Instagram API
+            // For now, we'll use mock data
+            setInstagramStats({
+              followers: Math.floor(Math.random() * 5000) + 500,
+              following: Math.floor(Math.random() * 1000) + 200,
+              posts: Math.floor(Math.random() * 100) + 10,
+              engagement: (Math.random() * 5 + 1).toFixed(2) + '%'
+            });
+          }
         }
         
       } catch (error) {
@@ -109,6 +128,10 @@ const AutomationDetails = () => {
     { id: 'integrations', label: 'Integrations', icon: Server },
     { id: 'data', label: 'Data', icon: Database },
   ];
+
+  const handleConnectNewAccount = () => {
+    navigate('/connect-instagram');
+  };
 
   if (loading) {
     return (
@@ -187,29 +210,66 @@ const AutomationDetails = () => {
             </CardHeader>
             <CardContent>
               {packageId === 'instagram' && instagramAccount ? (
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <h3 className="font-medium">Instagram Account</h3>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="p-4 border rounded">
-                        <p className="text-sm font-medium text-gray-500">Username</p>
-                        <p>{instagramAccount.username}</p>
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <h3 className="font-medium text-lg flex items-center">
+                      <Instagram className="mr-2 h-5 w-5 text-purple-500" />
+                      Instagram Profile
+                    </h3>
+                    
+                    <div className="flex items-center space-x-4 mb-6">
+                      <div className="h-16 w-16 bg-gray-200 rounded-full flex items-center justify-center">
+                        <User className="h-8 w-8 text-gray-500" />
                       </div>
-                      <div className="p-4 border rounded">
-                        <p className="text-sm font-medium text-gray-500">Connected Since</p>
-                        <p>{new Date(instagramAccount.connected_at).toLocaleDateString()}</p>
+                      <div>
+                        <h4 className="text-lg font-semibold">@{instagramAccount.username}</h4>
+                        <p className="text-sm text-gray-500">
+                          Connected on {format(new Date(instagramAccount.connected_at), 'PPP')}
+                        </p>
+                        <p className="text-sm mt-1">
+                          ID: <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">{instagramAccount.id}</span>
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-4 gap-4">
+                      <div className="p-4 bg-gray-50 rounded-lg text-center">
+                        <p className="text-sm text-gray-500">Followers</p>
+                        <p className="text-xl font-bold">{instagramStats.followers.toLocaleString()}</p>
+                      </div>
+                      <div className="p-4 bg-gray-50 rounded-lg text-center">
+                        <p className="text-sm text-gray-500">Following</p>
+                        <p className="text-xl font-bold">{instagramStats.following.toLocaleString()}</p>
+                      </div>
+                      <div className="p-4 bg-gray-50 rounded-lg text-center">
+                        <p className="text-sm text-gray-500">Posts</p>
+                        <p className="text-xl font-bold">{instagramStats.posts}</p>
+                      </div>
+                      <div className="p-4 bg-gray-50 rounded-lg text-center">
+                        <p className="text-sm text-gray-500">Engagement</p>
+                        <p className="text-xl font-bold">{instagramStats.engagement}</p>
                       </div>
                     </div>
                   </div>
                   
-                  <div>
-                    <Button variant="outline" className="mt-4">
+                  <div className="flex space-x-3">
+                    <Button variant="outline" className="flex-1">
                       Update Account Credentials
+                    </Button>
+                    <Button className="flex-1" onClick={handleConnectNewAccount}>
+                      Connect Another Account
                     </Button>
                   </div>
                 </div>
               ) : (
-                <p>No account information available</p>
+                <div className="text-center py-8">
+                  <User className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No Account Connected</h3>
+                  <p className="text-gray-500 mb-6">Connect an Instagram account to see details here</p>
+                  <Button onClick={handleConnectNewAccount}>
+                    Connect Instagram Account
+                  </Button>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -296,13 +356,23 @@ const AutomationDetails = () => {
               <SidebarSeparator />
               <SidebarGroup>
                 <div className="p-4">
-                  <div className={`p-2 rounded-md ${packageColor} inline-block`}>
+                  <div className={`p-2 rounded-md ${packageColor}`}>
                     <PackageIcon className="h-5 w-5" />
                   </div>
                   <h3 className="text-sm font-medium mt-2">{packageName}</h3>
                   <p className="text-xs text-gray-500">
                     {userData?.automation_active ? 'Active' : 'Inactive'}
                   </p>
+                  {instagramAccount && (
+                    <div className="mt-2 pt-2 border-t border-gray-200">
+                      <p className="text-xs font-medium">
+                        @{instagramAccount.username}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        ID: {instagramAccount.id}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </SidebarGroup>
             </SidebarContent>

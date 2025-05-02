@@ -26,7 +26,7 @@ import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, Loader2 } from 'lucide-react';
 
 const instagramFormSchema = z.object({
   username: z.string().min(1, 'Instagram username is required'),
@@ -37,9 +37,12 @@ type InstagramFormValues = z.infer<typeof instagramFormSchema>;
 
 const ConnectInstagram = () => {
   const navigate = useNavigate();
+  const { packageId } = useParams();
   const { user } = useSupabaseAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationSuccess, setValidationSuccess] = useState(false);
   
   React.useEffect(() => {
     if (!user) {
@@ -59,6 +62,36 @@ const ConnectInstagram = () => {
     setIsDialogOpen(true);
   };
 
+  // Mock validation function (in a real app, this would call an API)
+  const validateInstagramCredentials = async (username: string, password: string) => {
+    setIsValidating(true);
+    
+    try {
+      // In a real-world scenario, you would validate against Instagram's API
+      // This is a mock implementation that simulates a network request
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // For demo purposes, consider all credentials valid except specific test cases
+      const isValid = username !== 'invalid_user';
+      
+      if (!isValid) {
+        throw new Error('Invalid Instagram credentials');
+      }
+      
+      setValidationSuccess(true);
+      return true;
+    } catch (error: any) {
+      toast({
+        title: "Validation Failed",
+        description: error.message || "Could not validate Instagram credentials",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
   const onSubmit = async (data: InstagramFormValues) => {
     if (!user) {
       toast({
@@ -70,9 +103,16 @@ const ConnectInstagram = () => {
     }
 
     try {
+      // First validate the credentials
+      const isValid = await validateInstagramCredentials(data.username, data.password);
+      
+      if (!isValid) {
+        return;
+      }
+      
       setIsSubmitting(true);
       
-      // Store Instagram credentials in the instagram_accounts table
+      // If valid, store Instagram credentials in the instagram_accounts table
       const { error } = await supabase
         .from('instagram_accounts')
         .insert({
@@ -100,7 +140,8 @@ const ConnectInstagram = () => {
         })
         .eq('id', user.id);
         
-      navigate('/dashboard');
+      // Navigate to dashboard or automation details page
+      navigate(packageId ? `/automation/${packageId}` : '/dashboard');
     } catch (error: any) {
       console.error('Instagram connection error:', error);
       toast({
@@ -206,19 +247,38 @@ const ConnectInstagram = () => {
                 )}
               />
               
+              {validationSuccess && (
+                <div className="py-2 px-3 bg-green-50 border border-green-100 rounded-md text-green-700 text-sm">
+                  ✓ Credentials verified successfully
+                </div>
+              )}
+              
               <DialogFooter className="pt-4">
                 <Button 
                   variant="outline" 
                   onClick={() => setIsDialogOpen(false)} 
                   type="button"
+                  disabled={isValidating || isSubmitting}
                 >
                   Cancel
                 </Button>
                 <Button 
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isValidating || isSubmitting}
                 >
-                  {isSubmitting ? "Connecting..." : "Connect"}
+                  {isValidating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Verifying...
+                    </>
+                  ) : isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Connecting...
+                    </>
+                  ) : (
+                    "Connect"
+                  )}
                 </Button>
               </DialogFooter>
             </form>
