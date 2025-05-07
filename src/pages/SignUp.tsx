@@ -16,11 +16,16 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import Logo from '@/components/Logo';
 import { toast } from '@/components/ui/use-toast';
 
 const signupSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  email: z.string()
+    .email('Please enter a valid email address')
+    .refine(email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), {
+      message: "Please enter a valid email address",
+    }),
   password: z
     .string()
     .min(8, 'Password must be at least 8 characters')
@@ -40,6 +45,7 @@ const SignUp = () => {
   const navigate = useNavigate();
   const { signUp, user } = useSupabaseAuth();
   const [isLoading, setIsLoading] = React.useState(false);
+  const [verificationSent, setVerificationSent] = React.useState(false);
   
   React.useEffect(() => {
     if (user) {
@@ -61,12 +67,8 @@ const SignUp = () => {
       setIsLoading(true);
       await signUp(data.email, data.password);
       
-      toast({
-        title: "Success!",
-        description: "Your account has been created.",
-      });
-      
-      navigate('/agents');
+      // Set verification sent to show the appropriate message
+      setVerificationSent(true);
     } catch (error: any) {
       console.error('Signup error:', error);
       
@@ -94,83 +96,110 @@ const SignUp = () => {
         </div>
         
         <div className="bg-white rounded-lg shadow-md p-8">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="your@email.com"
-                        autoComplete="email"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          {verificationSent ? (
+            <>
+              <Alert className="bg-green-50 border-green-200 text-green-800 mb-6">
+                <AlertDescription>
+                  <div className="py-2">
+                    <p className="font-medium">Check your inbox!</p>
+                    <p className="mt-1">We've sent a verification link to your email. Please check your inbox and click the link to verify your account.</p>
+                  </div>
+                </AlertDescription>
+              </Alert>
               
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="••••••••"
-                        autoComplete="new-password"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Confirm Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="••••••••"
-                        autoComplete="new-password"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Signing up...' : 'Sign Up'}
-              </Button>
-            </form>
-          </Form>
+              <div className="text-center">
+                <Button
+                  onClick={() => navigate('/login')}
+                  className="w-full"
+                >
+                  Go to Login
+                </Button>
+                <p className="mt-4 text-sm text-gray-600">
+                  Didn't receive an email? Check your spam folder or try signing up again.
+                </p>
+              </div>
+            </>
+          ) : (
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="your@email.com"
+                          autoComplete="email"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          autoComplete="new-password"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirm Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          autoComplete="new-password"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Signing up...' : 'Sign Up'}
+                </Button>
+              </form>
+            </Form>
+          )}
           
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link to="/login" className="text-primary hover:underline">
-                Sign in
-              </Link>
-            </p>
-          </div>
+          {!verificationSent && (
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-600">
+                Already have an account?{' '}
+                <Link to="/login" className="text-primary hover:underline">
+                  Sign in
+                </Link>
+              </p>
+            </div>
+          )}
         </div>
         
         <div className="mt-8 text-center">

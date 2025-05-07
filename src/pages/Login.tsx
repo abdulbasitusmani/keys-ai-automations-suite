@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import Logo from '@/components/Logo';
 
 const loginSchema = z.object({
@@ -27,8 +28,9 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 const Login = () => {
   const navigate = useNavigate();
-  const { signIn, user } = useSupabaseAuth();
+  const { signIn, user, isEmailVerified } = useSupabaseAuth();
   const [isLoading, setIsLoading] = React.useState(false);
+  const [emailVerificationError, setEmailVerificationError] = React.useState<string | null>(null);
   
   React.useEffect(() => {
     if (user) {
@@ -44,14 +46,36 @@ const Login = () => {
     },
   });
 
+  const checkEmailVerification = async (email: string) => {
+    try {
+      const verified = await isEmailVerified(email);
+      if (!verified) {
+        setEmailVerificationError("Your email has not been verified. Please check your inbox for a verification link.");
+        return false;
+      }
+      setEmailVerificationError(null);
+      return true;
+    } catch (error) {
+      console.error('Error checking email verification:', error);
+      return false;
+    }
+  };
+
   const onSubmit = async (data: LoginFormValues) => {
     try {
       setIsLoading(true);
+      
+      // First check if email is verified
+      const isVerified = await checkEmailVerification(data.email);
+      if (!isVerified) {
+        setIsLoading(false);
+        return;
+      }
+      
       await signIn(data.email, data.password);
       navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -70,6 +94,14 @@ const Login = () => {
         </div>
         
         <div className="bg-white rounded-lg shadow-md p-8">
+          {emailVerificationError && (
+            <Alert className="bg-red-50 border-red-200 text-red-800 mb-6">
+              <AlertDescription>
+                {emailVerificationError}
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
@@ -84,6 +116,10 @@ const Login = () => {
                         placeholder="your@email.com"
                         autoComplete="email"
                         {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          setEmailVerificationError(null);
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
