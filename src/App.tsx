@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/hooks/use-supabase-auth';
@@ -6,7 +7,6 @@ import Login from '@/pages/Login';
 import SignUp from '@/pages/SignUp';
 import ForgotPassword from '@/pages/ForgotPassword';
 import Agents from '@/pages/Agents';
-import Settings from '@/pages/Settings';
 import { Toaster } from '@/components/ui/toaster';
 import Verify from '@/pages/Verify';
 
@@ -24,7 +24,6 @@ const App = () => {
           
           {/* Protected routes */}
           <Route path="/agents" element={<Agents />} />
-          <Route path="/settings" element={<Settings />} />
         </Routes>
         <Toaster />
       </AuthProvider>

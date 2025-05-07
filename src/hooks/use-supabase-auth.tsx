@@ -173,26 +173,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const isEmailVerified = async (email: string): Promise<boolean> => {
     try {
-      // This checks if the user exists and if their email is confirmed
-      const { data, error } = await supabase
-        .from('auth.users')
-        .select('email_confirmed_at')
-        .eq('email', email)
-        .single();
-
-      if (error || !data) {
-        // Use auth API as fallback if RLS prevents direct table access
-        const { data: authData, error: authError } = await supabase.auth.admin.getUserByEmail(email);
-        
-        if (authError || !authData?.user) {
-          console.error("Error checking email verification:", authError || "User not found");
+      // Direct Supabase auth API call to check if the email is confirmed
+      const { data, error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: false,
+        }
+      });
+      
+      if (error) {
+        // Check if the error is about the email not being confirmed
+        if (error.message?.includes("Email not confirmed")) {
           return false;
         }
-        
-        return !!authData.user.email_confirmed_at;
+        console.error("Error checking email verification:", error);
+        return false;
       }
       
-      return !!data.email_confirmed_at;
+      // If we can sign in, the email is verified
+      return true;
     } catch (error) {
       console.error("Error checking email verification:", error);
       return false;
