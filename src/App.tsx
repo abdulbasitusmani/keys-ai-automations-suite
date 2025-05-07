@@ -17,6 +17,10 @@ import NotFound from "./pages/NotFound";
 import AutomationDetails from "./pages/AutomationDetails";
 import Packages from "./pages/Packages";
 import ConnectInstagram from "./pages/ConnectInstagram";
+import Index from "./pages/Index";
+import Admin from "./pages/Admin";
+import Profile from "./pages/Profile";
+import Support from "./pages/Support";
 
 // Components
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -32,10 +36,11 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             {/* Public routes */}
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/support" element={<Support />} />
             
             {/* Protected routes */}
             <Route 
@@ -43,6 +48,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute>
+                  <Admin />
                 </ProtectedRoute>
               } 
             />
