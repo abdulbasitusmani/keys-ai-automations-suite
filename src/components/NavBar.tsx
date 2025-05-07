@@ -84,6 +84,13 @@ const NavBar = () => {
                   {!user ? (
                     <>
                       <Link 
+                        to="/packages" 
+                        className={`py-2 text-center ${isActive('/packages')}`}
+                        onClick={closeMenu}
+                      >
+                        Packages
+                      </Link>
+                      <Link 
                         to="/login" 
                         className="py-2 text-center text-gray-800 hover:text-primary"
                         onClick={closeMenu}
@@ -117,18 +124,18 @@ const NavBar = () => {
                         Dashboard
                       </Link>
                       <Link 
-                        to="/agents" 
-                        className={`py-2 text-center ${isActive('/agents')}`}
-                        onClick={closeMenu}
-                      >
-                        Agents
-                      </Link>
-                      <Link 
                         to="/packages" 
                         className={`py-2 text-center ${isActive('/packages')}`}
                         onClick={closeMenu}
                       >
                         Packages
+                      </Link>
+                      <Link 
+                        to="/agents" 
+                        className={`py-2 text-center ${isActive('/agents')}`}
+                        onClick={closeMenu}
+                      >
+                        Agents
                       </Link>
                       <Link 
                         to="/profile" 
@@ -168,6 +175,7 @@ const NavBar = () => {
           </>
         ) : (
           <nav className="flex items-center space-x-6">
+            <Link to="/packages" className={isActive('/packages')}>Packages</Link>
             {!user ? (
               <>
                 <Link to="/support" className={isActive('/support')}>Support</Link>
@@ -178,7 +186,6 @@ const NavBar = () => {
               <>
                 <Link to="/dashboard" className={isActive('/dashboard')}>Dashboard</Link>
                 <Link to="/agents" className={isActive('/agents')}>Agents</Link>
-                <Link to="/packages" className={isActive('/packages')}>Packages</Link>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="rounded-full h-8 w-8 p-0">
