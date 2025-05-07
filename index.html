@@ -1,26 +1,380 @@
+
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>keys-ai-automations-suite</title>
-    <meta name="description" content="Lovable Generated Project" />
-    <meta name="author" content="Lovable" />
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YourService - Subscription Plans</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            },
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-out forwards',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: 0, transform: 'translateY(10px)' },
+              '100%': { opacity: 1, transform: 'translateY(0)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- React and ReactDOM via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+  
+  <!-- Babel for JSX transpilation -->
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.22.9/babel.min.js" crossorigin></script>
+  
+  <!-- Stripe.js via CDN -->
+  <script src="https://js.stripe.com/v3/"></script>
+  
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .package-card {
+      transition: all 0.3s ease;
+    }
+    .package-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    .scroll-smooth {
+      scroll-behavior: smooth;
+    }
+    .btn-shine {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-shine::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        to bottom right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.1) 100%
+      );
+      transform: rotate(30deg);
+      transition: transform 0.5s;
+    }
+    .btn-shine:hover::after {
+      transform: translateY(100%) rotate(30deg);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 scroll-smooth">
+  <div id="root"></div>
 
-    <meta property="og:title" content="keys-ai-automations-suite" />
-    <meta property="og:description" content="Lovable Generated Project" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+  <script type="text/babel">
+    // Initialize Stripe with your publishable key
+    // NOTE: This is a placeholder. In production, use your actual Stripe publishable key
+    const stripeTestKey = 'pk_test_51BTUDGJAJfZb9HEBwDg86TN1KNprHjkfipXmEDMb0gSCassK5T3ZfxsAbcdef1234';
+    const stripe = Stripe(stripeTestKey);
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-  </head>
+    // Main App Component
+    const App = () => {
+      // Subscription packages data
+      const packages = [
+        {
+          id: 'pack-social',
+          name: 'Pack Social',
+          price: '€250',
+          regularPrice: '€300',
+          description: '€250/month for first 2 months, then €300/month',
+          priceId: 'price_social', // This would be your actual Stripe Price ID in production
+          features: ['Feature 1', 'Feature 2', 'Feature 3'],
+          isPrimary: false,
+        },
+        {
+          id: 'pack-office',
+          name: 'Pack Office',
+          price: '€450',
+          description: '€450/month',
+          priceId: 'price_office', // This would be your actual Stripe Price ID in production
+          features: ['Feature 1', 'Feature 2', 'Feature 3', 'Feature 4'],
+          isPrimary: true,
+        },
+        {
+          id: 'pack-manager',
+          name: 'Pack Manager',
+          price: '€500',
+          description: '€500/month',
+          priceId: 'price_manager', // This would be your actual Stripe Price ID in production
+          features: ['Feature 1', 'Feature 2', 'Feature 3', 'Feature 4', 'Feature 5'],
+          isPrimary: false,
+        },
+        {
+          id: 'pack-closer',
+          name: 'Pack Closer',
+          price: '€600',
+          description: '€600/month',
+          priceId: 'price_closer', // This would be your actual Stripe Price ID in production
+          features: ['Feature 1', 'Feature 2', 'Feature 3', 'Feature 4', 'Feature 5', 'Feature 6'],
+          isPrimary: false,
+        }
+      ];
 
-  <body>
-    <div id="root"></div>
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+      // Function to handle subscription checkout
+      const handleSubscribe = async (priceId, packageName) => {
+        console.log(`Subscribing to ${packageName} with price ID: ${priceId}`);
+        
+        // In a real implementation, you would call your backend API to create a Checkout Session
+        // For this demo, we'll show an alert indicating that Stripe checkout would be initiated
+        alert(`Stripe Checkout would be initiated for ${packageName}.\n\nIn a production environment, this would create a Stripe Checkout session with your backend API and redirect to the payment page.\n\nNote: This is in test mode and requires a Stripe publishable key.`);
+        
+        /* 
+        IMPLEMENTATION NOTE:
+        In a real application with a backend, you would make an API call like this:
+        
+        try {
+          const response = await fetch('/create-checkout-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ priceId }),
+          });
+          
+          const session = await response.json();
+          
+          // Redirect to Stripe Checkout
+          const result = await stripe.redirectToCheckout({
+            sessionId: session.id,
+          });
+          
+          if (result.error) {
+            console.error(result.error.message);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+        */
+      };
+
+      return (
+        <div className="flex flex-col min-h-screen">
+          {/* Header Component */}
+          <Header />
+          
+          {/* Main Content */}
+          <main className="flex-grow">
+            {/* Hero Section */}
+            <HeroSection />
+            
+            {/* Packages Section */}
+            <section id="packages" className="py-16 bg-white">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                    Choose Your Subscription Plan
+                  </h2>
+                  <p className="mt-4 text-xl text-gray-600">
+                    Select the package that best fits your needs and start growing your business today.
+                  </p>
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+                  {packages.map((pkg) => (
+                    <PackageCard 
+                      key={pkg.id}
+                      pkg={pkg}
+                      onSubscribe={() => handleSubscribe(pkg.priceId, pkg.name)}
+                    />
+                  ))}
+                </div>
+                
+                <div className="mt-12 text-center">
+                  <div className="inline-flex items-center px-4 py-2 border border-primary-500 text-sm font-medium rounded-md text-primary-600 bg-white">
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    This is a Stripe test integration. No actual charges will be made.
+                  </div>
+                </div>
+              </div>
+            </section>
+            
+            {/* Testimonials Section - Placeholder for future expansion */}
+            {/* 
+            <section className="py-16 bg-gray-50">
+              <div className="max-w-7xl mx-auto px-4">
+                <h2 className="text-3xl font-extrabold text-center">What Our Customers Say</h2>
+                <!-- Testimonials would go here in future versions -->
+              </div>
+            </section>
+            */}
+            
+            {/* FAQ Section - Placeholder for future expansion */}
+            {/* 
+            <section className="py-16 bg-white">
+              <div className="max-w-7xl mx-auto px-4">
+                <h2 className="text-3xl font-extrabold text-center">Frequently Asked Questions</h2>
+                <!-- FAQ content would go here in future versions -->
+              </div>
+            </section>
+            */}
+          </main>
+          
+          {/* Footer Component */}
+          <Footer />
+        </div>
+      );
+    };
+
+    // Header Component
+    const Header = () => {
+      return (
+        <header className="bg-white shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex-shrink-0 flex items-center">
+                <span className="text-2xl font-bold text-primary-600">YourService</span>
+              </div>
+              <div className="hidden md:block">
+                {/* Space for future navigation links */}
+              </div>
+            </div>
+          </div>
+        </header>
+      );
+    };
+
+    // Hero Section Component
+    const HeroSection = () => {
+      const scrollToPackages = () => {
+        document.getElementById('packages').scrollIntoView({ behavior: 'smooth' });
+      };
+      
+      return (
+        <section className="py-20 bg-gradient-to-br from-primary-500 to-primary-700">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <h1 className="text-4xl font-extrabold text-white sm:text-5xl md:text-6xl">
+                Elevate Your Business with Our Subscription Plans
+              </h1>
+              <p className="mt-6 max-w-2xl mx-auto text-xl text-primary-100">
+                Choose the perfect plan to boost your productivity and grow your business.
+              </p>
+              <div className="mt-10">
+                <button
+                  onClick={scrollToPackages}
+                  className="btn-shine px-8 py-3 border border-transparent text-base font-medium rounded-md text-primary-700 bg-white hover:bg-gray-100 md:py-4 md:text-lg md:px-10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all"
+                >
+                  Explore Our Packages
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    };
+
+    // Package Card Component
+    const PackageCard = ({ pkg, onSubscribe }) => {
+      return (
+        <div 
+          className={`package-card rounded-xl overflow-hidden border ${pkg.isPrimary ? 'border-primary-500 ring-4 ring-primary-500 ring-opacity-20' : 'border-gray-200'} bg-white shadow-lg`}
+          id={pkg.id}
+        >
+          <div className={`px-6 py-8 ${pkg.isPrimary ? 'bg-primary-500' : 'bg-white'}`}>
+            <h3 className={`text-2xl font-semibold ${pkg.isPrimary ? 'text-white' : 'text-gray-900'}`}>
+              {pkg.name}
+            </h3>
+            <div className="mt-4 flex items-baseline">
+              <span className={`text-4xl font-extrabold ${pkg.isPrimary ? 'text-white' : 'text-gray-900'}`}>
+                {pkg.price}
+              </span>
+              <span className={`ml-1 text-xl font-semibold ${pkg.isPrimary ? 'text-primary-100' : 'text-gray-500'}`}>
+                /month
+              </span>
+            </div>
+            <p className={`mt-2 text-sm ${pkg.isPrimary ? 'text-primary-100' : 'text-gray-500'}`}>
+              {pkg.description}
+            </p>
+            {pkg.regularPrice && (
+              <div className="mt-2">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                  Then {pkg.regularPrice}/month
+                </span>
+              </div>
+            )}
+          </div>
+          <div className="px-6 pt-6 pb-8">
+            <ul className="space-y-4">
+              {pkg.features.map((feature, index) => (
+                <li key={index} className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </div>
+                  <p className="ml-3 text-base text-gray-700">{feature}</p>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8">
+              <button
+                onClick={onSubscribe}
+                className={`w-full flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md ${
+                  pkg.isPrimary
+                    ? 'text-primary-700 bg-white hover:bg-primary-50'
+                    : 'text-white bg-primary-600 hover:bg-primary-700'
+                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all`}
+              >
+                Subscribe Now
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // Footer Component
+    const Footer = () => {
+      return (
+        <footer className="bg-gray-800 text-white">
+          <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div className="md:flex md:items-center md:justify-between">
+              <div className="flex justify-center md:order-2">
+                {/* Space for future social links */}
+              </div>
+              <div className="mt-8 md:mt-0 md:order-1">
+                <p className="text-center text-base text-gray-400">
+                  &copy; 2025 YourService. All rights reserved.
+                </p>
+              </div>
+            </div>
+          </div>
+        </footer>
+      );
+    };
+
+    // Render the App to the DOM
+    const rootElement = document.getElementById('root');
+    ReactDOM.render(<App />, rootElement);
+  </script>
+</body>
 </html>
