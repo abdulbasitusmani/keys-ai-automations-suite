@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSupabaseAuth } from '@/hooks/use-supabase-auth';
@@ -20,7 +19,23 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Loader2, Key, User, Save } from 'lucide-react';
+import { Loader2, Key, User as UserIcon, Save } from 'lucide-react';
+import { Json } from '@/integrations/supabase/types';
+
+// Define types for profile data and credentials
+interface ProfileData {
+  email: string | null;
+  package_selected: string | null;
+  automation_active: boolean | null;
+  credentials: Credentials | null;
+  is_admin: boolean | null;
+}
+
+interface Credentials {
+  instagram_username?: string;
+  whatsapp_api_key?: string;
+  calendar_id?: string;
+}
 
 // Form schema for profile
 const profileFormSchema = z.object({
@@ -48,7 +63,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { user, signOut } = useSupabaseAuth();
   const [loading, setLoading] = useState(true);
-  const [profileData, setProfileData] = useState<any>(null);
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingCredentials, setSavingCredentials] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
@@ -94,17 +109,24 @@ const Profile = () => {
 
         if (error) throw error;
 
-        setProfileData(data);
+        // Parse and ensure credentials are properly typed
+        const credentials = data.credentials as Credentials | null;
+        
+        setProfileData({
+          ...data,
+          credentials
+        });
+        
         profileForm.reset({
           email: data.email || '',
         });
 
         // Set credentials form values if they exist
-        if (data.credentials) {
+        if (credentials) {
           credentialsForm.reset({
-            instagram_username: data.credentials.instagram_username || '',
-            whatsapp_api_key: data.credentials.whatsapp_api_key || '',
-            calendar_id: data.credentials.calendar_id || '',
+            instagram_username: credentials.instagram_username || '',
+            whatsapp_api_key: credentials.whatsapp_api_key || '',
+            calendar_id: credentials.calendar_id || '',
           });
         }
 
@@ -259,7 +281,7 @@ const Profile = () => {
               <CardHeader>
                 <div className="flex items-center space-x-3">
                   <div className="p-2 bg-blue-100 rounded-full">
-                    <User className="h-5 w-5 text-blue-600" />
+                    <UserIcon className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
                     <CardTitle>Profile Information</CardTitle>

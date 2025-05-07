@@ -43,6 +43,7 @@ export type Database = {
           credentials: Json | null
           email: string | null
           id: string
+          is_admin: boolean | null
           n8n_workflow_id: string | null
           package_selected: string | null
         }
@@ -52,6 +53,7 @@ export type Database = {
           credentials?: Json | null
           email?: string | null
           id: string
+          is_admin?: boolean | null
           n8n_workflow_id?: string | null
           package_selected?: string | null
         }
@@ -61,6 +63,7 @@ export type Database = {
           credentials?: Json | null
           email?: string | null
           id?: string
+          is_admin?: boolean | null
           n8n_workflow_id?: string | null
           package_selected?: string | null
         }

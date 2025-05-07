@@ -27,11 +27,16 @@ const NavBar = () => {
     const checkAdminStatus = async () => {
       if (user) {
         try {
-          const { data } = await supabase
+          const { data, error } = await supabase
             .from('profiles')
             .select('is_admin')
             .eq('id', user.id)
             .single();
+          
+          if (error) {
+            console.error('Error checking admin status:', error);
+            return;
+          }
           
           setIsAdmin(data?.is_admin || false);
         } catch (error) {

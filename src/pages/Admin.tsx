@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSupabaseAuth } from '@/hooks/use-supabase-auth';
@@ -30,11 +29,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2, Edit, Trash2, CheckCircle, XCircle, RefreshCcw } from 'lucide-react';
+import { Json } from '@/integrations/supabase/types';
 
 // Types for the admin panel
 type User = {
   id: string;
-  email: string;
+  email: string | null;
   package_selected: string | null;
   automation_active: boolean | null;
   is_admin: boolean | null;
@@ -145,7 +145,16 @@ const Admin = () => {
           .eq('id', user.id)
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error checking admin status:', error);
+          toast({
+            title: 'Error',
+            description: 'Failed to check admin status.',
+            variant: 'destructive',
+          });
+          navigate('/dashboard');
+          return;
+        }
 
         if (data && data.is_admin) {
           setIsAdmin(true);
@@ -180,7 +189,9 @@ const Admin = () => {
         .select('*');
 
       if (error) throw error;
-      setUsers(data as User[] || []);
+      
+      // Cast the data to the User type
+      setUsers((data || []) as User[]);
     } catch (error: any) {
       console.error('Error fetching users:', error);
       toast({
